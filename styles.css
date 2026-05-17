@@ -281,10 +281,14 @@ button, input { font: inherit; }
   display: grid;
   justify-items: center;
   gap: 12px;
+  padding: 0;
+  border: 0;
+  background: transparent;
   color: #2f6419;
   text-align: center;
   text-decoration: none;
   font-weight: 800;
+  cursor: pointer;
 }
 .hero-icon-circle {
   display: grid;
@@ -833,8 +837,8 @@ button, input { font: inherit; }
 }
 .map-chip {
   position: absolute;
-  top: 16px;
-  right: 16px;
+  top: 58px;
+  right: 18px;
   z-index: 2;
   display: inline-flex;
   align-items: center;

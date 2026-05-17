@@ -111,6 +111,10 @@ const hospitalLocation = {
   naverUrl: "https://map.naver.com/p/search/%EC%8A%A4%EB%A7%88%ED%8A%B8%ED%97%88%EB%B8%8C%EB%B3%91%EC%9B%90",
 };
 
+const scrollToLocationSection = () => {
+  document.getElementById("location-section")?.scrollIntoView({ behavior: "smooth", block: "start" });
+};
+
 function useRoute() {
   const [route, setRoute] = useState(() => new URLSearchParams(location.search).get("slug") || "home");
 
@@ -319,10 +323,17 @@ function HomePage({ navigate }) {
             ["카카오 상담", "inquiry", MessageCircle],
             ["공지사항", "notice", FileText],
           ].map(([title, slug, Icon]) => (
+            title === "오시는 길" ? (
+              <button key={slug} type="button" onClick={scrollToLocationSection} className="hero-icon-link">
+                <span className="hero-icon-circle"><Icon size={34} strokeWidth={1.8} /></span>
+                <strong>{title}</strong>
+              </button>
+            ) : (
             <a key={slug} href={hospitalLocation.naverUrl} target="_blank" rel="noreferrer" className="hero-icon-link">
               <span className="hero-icon-circle"><Icon size={34} strokeWidth={1.8} /></span>
               <strong>{title}</strong>
             </a>
+            )
           ))}
         </div>
       </section>
@@ -449,7 +460,7 @@ function HomePage({ navigate }) {
         </div>
       </section>
 
-      <section className="section portal-section">
+      <section className="section portal-section" id="location-section">
         <div className="container portal-grid">
           <div className="notice-panel">
             <div className="panel-head"><h2>소식알림</h2><Link slug="notice" onClick={navigate}>더보기</Link></div>
