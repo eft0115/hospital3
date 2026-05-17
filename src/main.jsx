@@ -3,8 +3,6 @@ import { createRoot } from "react-dom/client";
 import {
   Building2,
   CalendarCheck,
-  ChevronLeft,
-  ChevronRight,
   ClipboardCheck,
   FileText,
   HeartPulse,
@@ -12,7 +10,6 @@ import {
   Menu,
   MessageCircle,
   Phone,
-  Pause,
   Search,
   Stethoscope,
   X,
@@ -106,6 +103,13 @@ const quickLinks = [
 
 const enterpriseSteps = ["문의", "일정 조율", "항목 확인", "현장 방문", "검진 진행", "결과 전달"];
 const personalSteps = ["대상 확인", "준비물 확인", "예약 또는 방문", "검사 진행", "결과 확인", "사후 안내"];
+const hospitalLocation = {
+  name: "스마트허브병원",
+  address: "경기도 시흥시 정왕동 스마트허브 권역",
+  lat: 37.3446,
+  lng: 126.7378,
+  naverUrl: "https://map.naver.com/p/search/%EC%8A%A4%EB%A7%88%ED%8A%B8%ED%97%88%EB%B8%8C%EB%B3%91%EC%9B%90",
+};
 
 function useRoute() {
   const [route, setRoute] = useState(() => new URLSearchParams(location.search).get("slug") || "home");
@@ -211,6 +215,74 @@ function SearchModal({ onClose, navigate }) {
   );
 }
 
+function NaverMap({ location }) {
+  const mapRef = React.useRef(null);
+  const [ready, setReady] = useState(false);
+  const clientId = import.meta.env.VITE_NAVER_MAPS_CLIENT_ID;
+
+  useEffect(() => {
+    if (!clientId || !mapRef.current) return undefined;
+
+    const scriptId = "naver-map-sdk";
+    const initializeMap = () => {
+      if (!window.naver?.maps || !mapRef.current) return;
+
+      const position = new window.naver.maps.LatLng(location.lat, location.lng);
+      const map = new window.naver.maps.Map(mapRef.current, {
+        center: position,
+        zoom: 15,
+        scaleControl: false,
+        logoControl: true,
+        mapDataControl: false,
+        zoomControl: true,
+        zoomControlOptions: {
+          position: window.naver.maps.Position.TOP_RIGHT,
+        },
+      });
+
+      new window.naver.maps.Marker({
+        position,
+        map,
+        title: location.name,
+      });
+      setReady(true);
+    };
+
+    const existingScript = document.getElementById(scriptId);
+    if (existingScript) {
+      if (window.naver?.maps) initializeMap();
+      else existingScript.addEventListener("load", initializeMap, { once: true });
+      return () => existingScript.removeEventListener("load", initializeMap);
+    }
+
+    const script = document.createElement("script");
+    script.id = scriptId;
+    script.src = `https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=${clientId}`;
+    script.async = true;
+    script.onload = initializeMap;
+    document.head.appendChild(script);
+
+    return undefined;
+  }, [clientId, location]);
+
+  if (!clientId) {
+    return (
+      <div className="naver-map-fallback">
+        <MapPin size={32} aria-hidden="true" />
+        <strong>네이버 지도 API 키가 필요합니다.</strong>
+        <span>.env에 VITE_NAVER_MAPS_CLIENT_ID를 등록하면 지도가 표시됩니다.</span>
+      </div>
+    );
+  }
+
+  return (
+    <div className="naver-map-wrap">
+      <div className="naver-map" ref={mapRef} aria-label={`${location.name} 네이버 지도`} />
+      {!ready && <div className="naver-map-loading">지도를 불러오는 중입니다.</div>}
+    </div>
+  );
+}
+
 function HomePage({ navigate }) {
   const [processType, setProcessType] = useState("enterprise");
   const [noticeType, setNoticeType] = useState("notice");
@@ -234,19 +306,6 @@ function HomePage({ navigate }) {
       <section className="hero hero-carousel" aria-label="스마트허브병원 주요 안내 배너">
         <div className={`hero-slide slide-one ${heroSlide === 0 ? "active" : ""}`} aria-hidden={heroSlide !== 0} />
         <div className={`hero-slide slide-two ${heroSlide === 1 ? "active" : ""}`} aria-hidden={heroSlide !== 1} />
-        <div className="hero-carousel-controls" aria-label="hero carousel controls">
-          <button type="button" onClick={() => setHeroSlide((current) => (current + 1) % 2)} aria-label="Previous slide">
-            <ChevronLeft size={18} strokeWidth={2.2} />
-          </button>
-          <span className={heroSlide === 0 ? "active" : ""} aria-hidden="true" />
-          <span className={heroSlide === 1 ? "active" : ""} aria-hidden="true" />
-          <button type="button" className="pause" aria-label="Auto playing">
-            <Pause size={15} strokeWidth={2.4} />
-          </button>
-          <button type="button" onClick={() => setHeroSlide((current) => (current + 1) % 2)} aria-label="Next slide">
-            <ChevronRight size={18} strokeWidth={2.2} />
-          </button>
-        </div>
       </section>
 
       <section className="hero-icon-section" aria-label="main shortcuts">
@@ -318,7 +377,7 @@ function HomePage({ navigate }) {
               ["법정검진", "특수건강검진", "대상자, 유해인자, 야간근로자 검진 등 실무 질문을 정리합니다.", "special-checkup", "orange"],
               ["센터", "건강검진센터", "국가검진, 직장인검진, 채용검진, 종합검진 정보를 제공합니다.", "health-center", "gray"],
             ].map(([badge, title, desc, slug, color]) => (
-              <article key={slug} className={`service-card ${color.includes("large") ? "large" : ""}`}>
+              <article key={slug} className={`service-card ${color.split(" ")[0]} ${color.includes("large") ? "large" : ""}`}>
                 <span className={`badge ${color.split(" ")[0]}`}>{badge}</span>
                 <h3>{title}</h3>
                 <p>{desc}</p>
@@ -329,7 +388,7 @@ function HomePage({ navigate }) {
         </div>
       </section>
 
-      <section className="section">
+      <section className="section field-section process-field-section">
         <div className="container">
           <div className="section-head row">
             <div>
@@ -341,30 +400,49 @@ function HomePage({ navigate }) {
               <button className={`tab ${processType === "personal" ? "active" : ""}`} type="button" onClick={() => setProcessType("personal")}>개인 검진</button>
             </div>
           </div>
-          <ol className="timeline active">
-            {steps.map((step, index) => (
-              <li key={step}>
-                <span>{String(index + 1).padStart(2, "0")}</span>
-                <strong>{step}</strong>
-                <p>{processType === "enterprise" ? "검진 운영에 필요한 정보를 단계별로 확인합니다." : "방문 전 준비와 결과 확인 흐름을 안내합니다."}</p>
-              </li>
-            ))}
-          </ol>
+          <div className={`process-field-grid ${processType === "personal" ? "personal" : ""}`}>
+            <ol className="timeline active">
+              {steps.map((step, index) => (
+                <li key={step}>
+                  <span>{String(index + 1).padStart(2, "0")}</span>
+                  <strong>{step}</strong>
+                  <p>{processType === "enterprise" ? "검진 운영에 필요한 정보를 단계별로 확인합니다." : "방문 전 준비와 결과 확인 흐름을 안내합니다."}</p>
+                </li>
+              ))}
+            </ol>
+            {processType === "enterprise" && (
+            <aside className="field-card">
+              <div className="field-card-copy">
+                <p className="eyebrow">Field Ready</p>
+                <h3>사업장과 현장 단위 검진에 대응합니다.</h3>
+                <p>기업 담당자가 검진 가능 여부를 빠르게 판단할 수 있도록 주요 산업군과 상황을 먼저 정리했습니다.</p>
+              </div>
+              <div className="field-chip-list" aria-label="현장 대응 유형">
+                {["건설현장", "물류센터", "제조업", "공단·산업단지", "학교·기관", "야간근로 사업장"].map((item) => (
+                  <Link key={item} slug="enterprise-checkup" onClick={navigate} className="field-chip">{item}</Link>
+                ))}
+              </div>
+            </aside>
+            )}
+          </div>
         </div>
       </section>
 
-      <section className="section field-section">
-        <div className="container field-grid">
-          <div>
-            <p className="eyebrow">Field Ready</p>
-            <h2>사업장과 현장 단위 검진에 대응합니다.</h2>
-            <p>기업 담당자가 검진 가능 여부를 빠르게 판단할 수 있도록 주요 산업군과 상황을 먼저 정리했습니다.</p>
+      <section className="section news-section">
+        <div className="container news-grid">
+          <div className="news-intro">
+            <p className="eyebrow">Guides</p>
+            <h2>검진 가이드와 병원 소식</h2>
+            <p>블로그에 흩어진 검진 정보를 공식 사이트 안에서 서비스 안내와 연결합니다.</p>
           </div>
-          <div className="industry-grid">
-            {["건설현장", "물류센터", "제조업", "공단·산업단지", "학교·기관", "야간근로 사업장"].map((item) => (
-              <Link key={item} slug="enterprise-checkup" onClick={navigate}>{item}</Link>
-            ))}
-          </div>
+          {[
+            ["건강정보", "배치전검진을 처음 받는 분을 위한 준비 가이드", "신분증, 사업장 안내문, 금식 여부, 결과 확인까지 방문 전 확인할 사항을 정리합니다.", "health-info"],
+            ["센터소식", "사업장 출장검진 문의 시 필요한 정보", "검진 인원, 희망 일정, 장소, 검진 항목을 미리 정리하면 상담이 빨라집니다.", "enterprise-checkup"],
+          ].map(([type, title, desc, slug]) => (
+            <article className="article-card" key={title}>
+              <span>{type}</span><h3>{title}</h3><p>{desc}</p><Link slug={slug} onClick={navigate}>자세히 보기</Link>
+            </article>
+          ))}
         </div>
       </section>
 
@@ -385,28 +463,21 @@ function HomePage({ navigate }) {
               ))}
             </ul>
           </div>
-          <aside className="popup-zone" aria-label="팝업존">
-            <div className="panel-head"><h2>팝업존</h2><div className="mini-controls" aria-hidden="true"><span /><span /><span /></div></div>
-            <div className="popup-card"><img src="/material/2.png" alt="진료예약 안내 배너" /></div>
+          <aside className="location-block" aria-label="병원 위치 안내">
+            <div className="location-heading"><h2>병원의 위치는 여기입니다.</h2><MapPin size={22} aria-hidden="true" /></div>
+            <div className="popup-zone location-zone">
+              <NaverMap location={hospitalLocation} />
+            </div>
+            <p>{hospitalLocation.address}</p>
+            <a
+              className="map-link"
+              href={hospitalLocation.naverUrl}
+              target="_blank"
+              rel="noreferrer"
+            >
+              네이버 지도에서 보기
+            </a>
           </aside>
-        </div>
-      </section>
-
-      <section className="section news-section">
-        <div className="container news-grid">
-          <div className="news-intro">
-            <p className="eyebrow">Guides</p>
-            <h2>검진 가이드와 병원 소식</h2>
-            <p>블로그에 흩어진 검진 정보를 공식 사이트 안에서 서비스 안내와 연결합니다.</p>
-          </div>
-          {[
-            ["건강정보", "배치전검진을 처음 받는 분을 위한 준비 가이드", "신분증, 사업장 안내문, 금식 여부, 결과 확인까지 방문 전 확인할 사항을 정리합니다.", "health-info"],
-            ["센터소식", "사업장 출장검진 문의 시 필요한 정보", "검진 인원, 희망 일정, 장소, 검진 항목을 미리 정리하면 상담이 빨라집니다.", "enterprise-checkup"],
-          ].map(([type, title, desc, slug]) => (
-            <article className="article-card" key={title}>
-              <span>{type}</span><h3>{title}</h3><p>{desc}</p><Link slug={slug} onClick={navigate}>자세히 보기</Link>
-            </article>
-          ))}
         </div>
       </section>
       <FinalCta navigate={navigate} />
