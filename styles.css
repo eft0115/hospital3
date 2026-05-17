@@ -741,7 +741,7 @@ button, input { font: inherit; }
 }
 .portal-grid {
   display: grid;
-  grid-template-columns: 1.35fr .85fr;
+  grid-template-columns: 1fr 1fr;
   gap: 24px;
 }
 .notice-panel,
@@ -835,25 +835,46 @@ button, input { font: inherit; }
   font-size: 14px;
   font-weight: 650;
 }
-.map-chip {
+.map-info-card {
   position: absolute;
-  top: 58px;
   right: 18px;
+  bottom: 18px;
   z-index: 2;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 38px;
-  padding: 0 16px;
-  border-radius: 999px;
-  background: rgba(0, 93, 155, .94);
-  color: white;
-  box-shadow: 0 10px 24px rgba(20, 46, 80, .18);
-  font-weight: 850;
-  backdrop-filter: blur(8px);
+  width: min(250px, calc(100% - 36px));
+  padding: 16px;
+  border: 1px solid rgba(255,255,255,.72);
+  border-radius: 8px;
+  background: rgba(255,255,255,.86);
+  box-shadow: 0 10px 24px rgba(20, 46, 80, .14);
+  color: var(--text);
+  backdrop-filter: blur(10px);
 }
-.map-chip:hover {
-  background: var(--blue);
+.map-info-card strong {
+  display: block;
+  margin-bottom: 10px;
+  color: var(--blue-deep);
+  font-size: 17px;
+  line-height: 1.2;
+}
+.map-info-card dl {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+}
+.map-info-card div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 13px;
+}
+.map-info-card dt {
+  color: var(--muted);
+  font-weight: 750;
+}
+.map-info-card dd {
+  margin: 0;
+  color: var(--text);
+  font-weight: 850;
 }
 
 .news-grid {

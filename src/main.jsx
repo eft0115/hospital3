@@ -110,6 +110,11 @@ const hospitalLocation = {
   lng: 126.7378,
   naverUrl: "https://map.naver.com/p/search/%EC%8A%A4%EB%A7%88%ED%8A%B8%ED%97%88%EB%B8%8C%EB%B3%91%EC%9B%90",
 };
+const operatingHours = [
+  ["평일", "08:00 - 17:00"],
+  ["토요일", "08:00 - 12:00"],
+  ["점심시간", "12:00 - 13:00"],
+];
 
 const scrollToLocationSection = () => {
   document.getElementById("location-section")?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -282,9 +287,17 @@ function NaverMap({ location }) {
   return (
     <div className="naver-map-wrap">
       <div className="naver-map" ref={mapRef} aria-label={`${location.name} 네이버 지도`} />
-      <a className="map-chip" href={location.naverUrl} target="_blank" rel="noreferrer">
-        {location.name}
-      </a>
+      <div className="map-info-card">
+        <strong>{location.name}</strong>
+        <dl>
+          {operatingHours.map(([label, value]) => (
+            <div key={label}>
+              <dt>{label}</dt>
+              <dd>{value}</dd>
+            </div>
+          ))}
+        </dl>
+      </div>
       {!ready && <div className="naver-map-loading">지도를 불러오는 중입니다.</div>}
     </div>
   );
