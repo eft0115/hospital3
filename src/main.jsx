@@ -267,14 +267,17 @@ function HomePage({ navigate }) {
 
       <section className="quick-section" aria-label="빠른 메뉴">
         <div className="container quick-grid">
-          {quickLinks.map(([title, desc, slug, Icon], index) => (
-            <Link key={slug} slug={slug} onClick={navigate} className={`quick-card ${slug === "inquiry" ? "accent" : ""}`}>
-              <span>{String(index + 1).padStart(2, "0")}</span>
-              <Icon size={28} strokeWidth={1.8} />
-              <strong>{title}</strong>
-              <small>{desc}</small>
-            </Link>
-          ))}
+          <div className="quick-card-list">
+            {quickLinks.slice(0, 4).map(([title, desc, slug, Icon], index) => (
+              <Link key={slug} slug={slug} onClick={navigate} className="quick-card">
+                <span>{String(index + 1).padStart(2, "0")}</span>
+                <Icon size={28} strokeWidth={1.8} />
+                <strong>{title}</strong>
+                <small>{desc}</small>
+              </Link>
+            ))}
+          </div>
+          <div className="quick-image-panel" aria-hidden="true" />
         </div>
       </section>
 
