@@ -791,43 +791,22 @@ button, input { font: inherit; }
   background: var(--line);
 }
 .location-block {
-  display: flex;
-  flex-direction: column;
-}
-.location-heading {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 14px;
-}
-.location-heading h2 {
-  max-width: 300px;
-  margin: 0;
-  font-size: 28px;
-  line-height: 1.2;
-}
-.location-heading svg {
-  color: var(--blue-deep);
+  min-height: 100%;
 }
 .location-zone {
-  min-height: 250px;
   padding: 0;
   overflow: hidden;
   background: #eef8fd;
 }
-.location-block p {
-  margin: 14px 0 0;
-  color: var(--muted);
-  font-weight: 650;
-}
 .naver-map-wrap {
   position: relative;
-  min-height: 250px;
+  height: 100%;
+  min-height: 340px;
 }
 .naver-map {
   width: 100%;
-  min-height: 250px;
+  height: 100%;
+  min-height: 340px;
 }
 .naver-map-loading,
 .naver-map-fallback {
@@ -852,21 +831,25 @@ button, input { font: inherit; }
   font-size: 14px;
   font-weight: 650;
 }
-.map-link {
+.map-chip {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 2;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: fit-content;
-  min-height: 44px;
-  margin-top: 16px;
-  padding: 0 18px;
+  min-height: 38px;
+  padding: 0 16px;
   border-radius: 999px;
-  background: var(--blue);
+  background: rgba(0, 93, 155, .94);
   color: white;
+  box-shadow: 0 10px 24px rgba(20, 46, 80, .18);
   font-weight: 850;
+  backdrop-filter: blur(8px);
 }
-.map-link:hover {
-  background: var(--blue-deep);
+.map-chip:hover {
+  background: var(--blue);
 }
 
 .news-grid {

@@ -278,6 +278,9 @@ function NaverMap({ location }) {
   return (
     <div className="naver-map-wrap">
       <div className="naver-map" ref={mapRef} aria-label={`${location.name} 네이버 지도`} />
+      <a className="map-chip" href={location.naverUrl} target="_blank" rel="noreferrer">
+        {location.name}
+      </a>
       {!ready && <div className="naver-map-loading">지도를 불러오는 중입니다.</div>}
     </div>
   );
@@ -316,10 +319,10 @@ function HomePage({ navigate }) {
             ["카카오 상담", "inquiry", MessageCircle],
             ["공지사항", "notice", FileText],
           ].map(([title, slug, Icon]) => (
-            <Link key={slug} slug={slug} onClick={navigate} className="hero-icon-link">
+            <a key={slug} href={hospitalLocation.naverUrl} target="_blank" rel="noreferrer" className="hero-icon-link">
               <span className="hero-icon-circle"><Icon size={34} strokeWidth={1.8} /></span>
               <strong>{title}</strong>
-            </Link>
+            </a>
           ))}
         </div>
       </section>
@@ -463,20 +466,8 @@ function HomePage({ navigate }) {
               ))}
             </ul>
           </div>
-          <aside className="location-block" aria-label="병원 위치 안내">
-            <div className="location-heading"><h2>병원의 위치는 여기입니다.</h2><MapPin size={22} aria-hidden="true" /></div>
-            <div className="popup-zone location-zone">
-              <NaverMap location={hospitalLocation} />
-            </div>
-            <p>{hospitalLocation.address}</p>
-            <a
-              className="map-link"
-              href={hospitalLocation.naverUrl}
-              target="_blank"
-              rel="noreferrer"
-            >
-              네이버 지도에서 보기
-            </a>
+          <aside className="location-block popup-zone location-zone" aria-label="병원 위치 안내">
+            <NaverMap location={hospitalLocation} />
           </aside>
         </div>
       </section>
